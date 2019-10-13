@@ -11,20 +11,28 @@ import SpriteKit
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
     //暗黙的なオプショナル型で宣言。使用時にアンラップする必要がなくなる。
-    var scrollNode:SKNode! //地面と雲
+    var scrollNode:SKNode!  //地面と雲
     var wallNode:SKNode!   //壁
     var bird:SKSpriteNode! //鳥
+    var itemNode:SKNode!   //風船
     
     // 衝突判定カテゴリー
-    let birdCategory: UInt32 = 1 << 0       // 0...00001
-    let groundCategory: UInt32 = 1 << 1     // 0...00010
-    let wallCategory: UInt32 = 1 << 2       // 0...00100
-    let scoreCategory: UInt32 = 1 << 3      // 0...01000
+    let birdCategory: UInt32 = 1 << 0       // 0...00001 鳥
+    let groundCategory: UInt32 = 1 << 1     // 0...00010　地面
+    let wallCategory: UInt32 = 1 << 2       // 0...00100　壁
+    let scoreCategory: UInt32 = 1 << 3      // 0...01000　スコア用の物体（上側の壁と下側の壁の間に見えない物体）
+    let itemCategory: UInt32 = 1 << 4       // 0...10000  風船
     
     // スコア用
     var score = 0
     var scoreLabelNode:SKLabelNode!
     var bestScoreLabelNode:SKLabelNode!
+    
+    // 風船スコア用
+    var itemscore = 0
+    var itemscoreLabelNode:SKLabelNode!
+    var itemBestScoreLabelNode:SKLabelNode!
+    
     //ベストスコア保管用
     let userDefaults:UserDefaults = UserDefaults.standard
     
@@ -47,6 +55,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 壁用のノード
         wallNode = SKNode()
         scrollNode.addChild(wallNode)
+        
+        // 風船用のノード
+        itemNode = SKNode()
+        scrollNode.addChild(itemNode)
 
         
         // 各種スプライトを生成する処理をメソッドに分割
@@ -54,9 +66,72 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupCloud()
         setupWall()
         setupBird()
+        setupitem()
         
         setupScoreLabel()
         
+    }
+    
+    func setupitem() {
+        // 風船の画像を読み込む
+        let itemTexture = SKTexture(imageNamed: "item")
+        itemTexture.filteringMode = .linear
+        
+        // 移動する距離を計算
+        let movingDistance = CGFloat(self.frame.size.height + itemTexture.size().height)
+
+        
+        // 画面外まで移動するアクションを作成
+        let moveItem = SKAction.moveBy(x: 0, y:-movingDistance , duration:6)
+        
+        // 自身を取り除くアクションを作成
+        let removeItem = SKAction.removeFromParent()
+        
+        // 2つのアニメーションを順に実行するアクションを作成
+        let itemAnimation = SKAction.sequence([moveItem, removeItem])
+        
+        
+        // 風船を生成するアクションを作成
+        let createItemAnimation = SKAction.run({
+            // 風船関連のノードを乗せるノードを作成
+            let itemNode = SKNode()
+            itemNode.position = CGPoint(x:0 , y: self.frame.size.height + itemTexture.size().height / 2 )
+            itemNode.zPosition = -40 // 雲と壁より手前、地面より奥
+            
+            // 風船を作成
+            let item = SKSpriteNode(texture: itemTexture)
+            item.position = CGPoint(x: self.frame.size.width * 0.2, y: 300)
+            
+            //　衝突判定
+            item.physicsBody?.categoryBitMask = self.itemCategory
+            
+            //itemスコア用のノード
+            let itemScoreNode = SKNode()
+            itemScoreNode.position = CGPoint(x: item.size.width, y: item.size.height)
+            itemScoreNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: item.size.width, height: item.size.height))
+            itemScoreNode.physicsBody?.isDynamic = false
+            itemScoreNode.physicsBody?.categoryBitMask = self.itemCategory
+            itemScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
+            
+            itemNode.addChild(itemScoreNode)
+        
+
+            itemNode.addChild(item)
+            
+            itemNode.run(itemAnimation)
+            
+            self.itemNode.addChild(itemNode)
+            
+        })
+        
+        // 次の風船作成までの時間待ちのアクションを作成
+        let waitAnimation = SKAction.wait(forDuration: 5)
+        
+        // 風船を作成->時間待ち->風船を作成を無限に繰り返すアクションを作成
+        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
+        
+        itemNode.run(repeatForeverAnimation)
+
     }
     
     
@@ -171,11 +246,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 鳥の画像サイズを取得
         let birdSize = SKTexture(imageNamed: "bird_a").size()
         
-        // 鳥が通り抜ける隙間の長さを鳥のサイズの3倍とする
-        let slit_length = birdSize.height * 3
+        // 鳥が通り抜ける隙間の長さを鳥のサイズの4倍とする
+        let slit_length = birdSize.height * 4
         
-        // 隙間位置の上下の振れ幅を鳥のサイズの3倍とする
-        let random_y_range = birdSize.height * 3
+        // 隙間位置の上下の振れ幅を鳥のサイズの4倍とする
+        let random_y_range = birdSize.height * 4
         
         // 下の壁のY軸下限位置(中央位置から下方向の最大振れ幅で下の壁を表示する位置)を計算
         let groundSize = SKTexture(imageNamed: "ground").size()
@@ -270,6 +345,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bird.physicsBody?.categoryBitMask = birdCategory
         bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
         bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory
+        bird.physicsBody?.contactTestBitMask = itemCategory   // 風船用
         
         // アニメーションを設定
         bird.run(flap)
@@ -313,6 +389,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 userDefaults.synchronize()
             }
             
+        } else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory{
+            
+            // 風船と衝突した
+            print("ItemScoreUp")
+            itemscore += 1
+            itemscoreLabelNode.text = "ItemScore:\(itemscore)"
+        
             
         } else {
             // 壁か地面と衝突した
@@ -332,7 +415,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
     func restart() {
         score = 0
-        scoreLabelNode.text = "Score:\(score)"
+        scoreLabelNode.text = "Score:\(score)" //壁用スコア
+        
+        itemscore = 0
+        itemscoreLabelNode.text = "Score:\(itemscore)" //風船用スコア
         
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
         bird.physicsBody?.velocity = CGVector.zero
@@ -368,3 +454,4 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
 }
+
