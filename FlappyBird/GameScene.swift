@@ -77,60 +77,39 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let itemTexture = SKTexture(imageNamed: "item")
         itemTexture.filteringMode = .linear
         
-        // 移動する距離を計算
+        // 移動する距離を計算　(画面の縦幅と風船の縦幅を足した分)
         let movingDistance = CGFloat(self.frame.size.height + itemTexture.size().height)
-
         
-        // 画面外まで移動するアクションを作成
-        let moveItem = SKAction.moveBy(x: 0, y:-movingDistance , duration:6)
+        // 画面上まで6秒かけて移動するアクション
+        let moveItem = SKAction.moveBy(x: 0, y:movingDistance , duration:6)
         
-        // 自身を取り除くアクションを作成
+        // 自身を取り除くアクション
         let removeItem = SKAction.removeFromParent()
         
-        // 2つのアニメーションを順に実行するアクションを作成
+        // アニメーションを実行するアクションを作成
         let itemAnimation = SKAction.sequence([moveItem, removeItem])
-        
-        
+    
         // 風船を生成するアクションを作成
         let createItemAnimation = SKAction.run({
-            // 風船関連のノードを乗せるノードを作成
-            let itemNode = SKNode()
-            itemNode.position = CGPoint(x:0 , y: self.frame.size.height + itemTexture.size().height / 2 )
-            itemNode.zPosition = -40 // 雲と壁より手前、地面より奥
-            
-            // 風船を作成
+            // 風船を表示させる位置を決める
             let item = SKSpriteNode(texture: itemTexture)
-            item.position = CGPoint(x: self.frame.size.width * 0.2, y: 300)
+            item.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
+            item.zPosition = -40
             
             //　衝突判定
-            item.physicsBody?.categoryBitMask = self.itemCategory
+            //item.physicsBody?.categoryBitMask = self.itemCategory
             
-            //itemスコア用のノード
-            let itemScoreNode = SKNode()
-            itemScoreNode.position = CGPoint(x: item.size.width, y: item.size.height)
-            itemScoreNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: item.size.width, height: item.size.height))
-            itemScoreNode.physicsBody?.isDynamic = false
-            itemScoreNode.physicsBody?.categoryBitMask = self.itemCategory
-            itemScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
-            
-            itemNode.addChild(itemScoreNode)
-        
-
-            itemNode.addChild(item)
-            
-            itemNode.run(itemAnimation)
-            
-            self.itemNode.addChild(itemNode)
-            
+            //　風船用のノードに風船を表示
+            self.itemNode.addChild(item)
+            //移動するアニメーションを表示
+            self.itemNode.run(itemAnimation)
         })
-        
-        // 次の風船作成までの時間待ちのアクションを作成
-        let waitAnimation = SKAction.wait(forDuration: 5)
-        
+        // 3秒待つアクション
+        let waitAnimation = SKAction.wait(forDuration: 3)
         // 風船を作成->時間待ち->風船を作成を無限に繰り返すアクションを作成
-        let repeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
+        let fusenRepeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
         
-        itemNode.run(repeatForeverAnimation)
+        itemNode.run(fusenRepeatForeverAnimation)
 
     }
     
@@ -231,10 +210,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let wallTexture = SKTexture(imageNamed: "wall")
         wallTexture.filteringMode = .linear
         
-        // 移動する距離を計算
+        // 移動する距離を計算　画面の横幅と壁の横幅を足した分
         let movingDistance = CGFloat(self.frame.size.width + wallTexture.size().width)
         
-        // 画面外まで移動するアクションを作成
+        // 画面外まで4秒かけて移動するアクションを作成
         let moveWall = SKAction.moveBy(x: -movingDistance, y: 0, duration:4)
         
         // 自身を取り除くアクションを作成
@@ -389,13 +368,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 userDefaults.synchronize()
             }
             
-        } else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory{
-            
-            // 風船と衝突した
-            print("ItemScoreUp")
-            itemscore += 1
-            itemscoreLabelNode.text = "ItemScore:\(itemscore)"
-        
             
         } else {
             // 壁か地面と衝突した
@@ -417,8 +389,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         score = 0
         scoreLabelNode.text = "Score:\(score)" //壁用スコア
         
-        itemscore = 0
-        itemscoreLabelNode.text = "Score:\(itemscore)" //風船用スコア
         
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
         bird.physicsBody?.velocity = CGVector.zero
