@@ -31,7 +31,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // 風船スコア用
     var itemscore = 0
     var itemscoreLabelNode:SKLabelNode!
-    var itemBestScoreLabelNode:SKLabelNode!
     
     //ベストスコア保管用
     let userDefaults:UserDefaults = UserDefaults.standard
@@ -42,6 +41,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         // 重力を設定
         physicsWorld.gravity = CGVector(dx: 0, dy: -4)
         physicsWorld.contactDelegate = self
+        
+        //音楽を再生
         
         // 背景色を設定 alphaは透明度
         backgroundColor = UIColor(red: 0.15, green: 0.75, blue: 0.90, alpha: 1)
@@ -96,16 +97,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             item.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
             item.zPosition = -40
             
-            //　衝突判定
-            //item.physicsBody?.categoryBitMask = self.itemCategory
+            // 物理演算を設定 (半径を指定して円形の物理体を作成）
+            //item.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height / 2)
+
+            //　衝突判定カテゴリーを設定
+            item.physicsBody?.categoryBitMask = self.itemCategory
+            item.physicsBody?.contactTestBitMask = self.birdCategory //衝突する相手
+            
+            //衝突したときに音がなる
+            //item.physicsBody?
+            
+            //衝突したときに消える
+            //item.physicsBody?
+            
+            // スコアアップ用のノード
+            let itemScoreNode = SKNode()
+            itemScoreNode.position = CGPoint(x: item.size.width, y: item.size.height)
+            itemScoreNode.physicsBody = SKPhysicsBody(rectangleOf: item.size)
+            itemScoreNode.physicsBody?.isDynamic = false
+            itemScoreNode.physicsBody?.categoryBitMask = self.itemCategory
+            itemScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
+            self.itemNode.addChild(itemScoreNode)
             
             //　風船用のノードに風船を表示
             self.itemNode.addChild(item)
+            
             //移動するアニメーションを表示
-            self.itemNode.run(itemAnimation)
+            item.run(itemAnimation)
         })
-        // 3秒待つアクション
-        let waitAnimation = SKAction.wait(forDuration: 3)
+        // 10秒待つアクション
+        let waitAnimation = SKAction.wait(forDuration: 10)
         // 風船を作成->時間待ち->風船を作成を無限に繰り返すアクションを作成
         let fusenRepeatForeverAnimation = SKAction.repeatForever(SKAction.sequence([createItemAnimation, waitAnimation]))
         
@@ -160,7 +181,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             // 衝突の時に動かないように設定する
             sprite.physicsBody?.isDynamic = false
-
             
             // addChild(_:）メソッドでシーンにスプライトを追加する
             scrollNode.addChild(sprite)
@@ -321,10 +341,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bird.physicsBody?.allowsRotation = false
         
         // 衝突のカテゴリー設定
-        bird.physicsBody?.categoryBitMask = birdCategory
-        bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
-        bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory
-        bird.physicsBody?.contactTestBitMask = itemCategory   // 風船用
+        bird.physicsBody?.categoryBitMask = birdCategory //自身のカテゴリを指定
+        bird.physicsBody?.collisionBitMask = groundCategory | wallCategory //跳ね返る相手
+        bird.physicsBody?.contactTestBitMask = groundCategory | wallCategory //衝突する相手
         
         // アニメーションを設定
         bird.run(flap)
@@ -341,6 +360,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
            // 鳥に縦方向の力を与える
            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 15))
+            
+            
         } else if bird.speed == 0 {
             restart()
         }
@@ -348,11 +369,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // SKPhysicsContactDelegateのメソッド。衝突したときに呼ばれる
     func didBegin(_ contact: SKPhysicsContact) {
+        
         // ゲームオーバーのときは何もしない
+        //壁にあったあとに地面にも必ず衝突するのでそこで2度めの処理を行わないようにするため。
         if scrollNode.speed <= 0 {
             return
         }
         
+        //壁の間の物体用
         if (contact.bodyA.categoryBitMask & scoreCategory) == scoreCategory || (contact.bodyB.categoryBitMask & scoreCategory) == scoreCategory {
             // スコア用の物体と衝突した
             print("ScoreUp")
@@ -365,19 +389,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 bestScore = score
                 bestScoreLabelNode.text = "Best Score:\(bestScore)"
                 userDefaults.set(bestScore, forKey: "BEST")
-                userDefaults.synchronize()
+                userDefaults.synchronize() //保管するメソッド
             }
+        }
+        
+        //風船用
+        else if (contact.bodyA.categoryBitMask & itemCategory ) == (contact.bodyB.categoryBitMask & itemCategory){
+            //風船スコアを更新
+            print("風船GET")
+            itemscore += 1
+            itemscoreLabelNode.text = "ItemScore:\(itemscore)"
+            
+            //風船の割れた音を出す
+            //"burst"
+            
+            //風船を消す
             
             
-        } else {
-            // 壁か地面と衝突した
+        }
+        
+        //壁か地面と衝突用
+        else {
             print("GameOver")
             
             // スクロールを停止させる
             scrollNode.speed = 0
             
+            //鳥が壁に衝突したときに地面まで落下させるため、一時的にcollisionBitMaskをgroundCategoryだけにして壁とは衝突しないようにする
             bird.physicsBody?.collisionBitMask = groundCategory
             
+            //衝突してしまったことを表現するために鳥を回転、回転が終わった時にbirdのspeedも0にして完全に停止
             let roll = SKAction.rotate(byAngle: CGFloat(Double.pi) * CGFloat(bird.position.y) * 0.01, duration:1)
             bird.run(roll, completion:{
                 self.bird.speed = 0
@@ -386,10 +427,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
 
     func restart() {
+        
+        //壁用スコア
         score = 0
-        scoreLabelNode.text = "Score:\(score)" //壁用スコア
+        scoreLabelNode.text = "Score:\(score)"
         
+        //風船用スコア
+        itemscore = 0
+        itemscoreLabelNode.text = "ItemScore:\(itemscore)"
         
+        //鳥を指定の位置へ。鳥の速度を0へ。鳥が跳ね返る相手を壁と地面へ。鳥の表示を一番手前へ。
         bird.position = CGPoint(x: self.frame.size.width * 0.2, y:self.frame.size.height * 0.7)
         bird.physicsBody?.velocity = CGVector.zero
         bird.physicsBody?.collisionBitMask = groundCategory | wallCategory
@@ -397,24 +444,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         wallNode.removeAllChildren()
         
+        //スピードを1に戻す
         bird.speed = 1
         scrollNode.speed = 1
     }
     
     
     func setupScoreLabel() {
+        
+        //風船スコアラベル
+        itemscore = 0
+        itemscoreLabelNode = SKLabelNode()
+        itemscoreLabelNode.fontColor = UIColor.black
+        itemscoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 60)
+        itemscoreLabelNode.zPosition = 100
+        itemscoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
+        itemscoreLabelNode.text = "ItemScore:\(itemscore)"
+        self.addChild(itemscoreLabelNode)
+        
+        //壁用スコアラベル
         score = 0
         scoreLabelNode = SKLabelNode()
         scoreLabelNode.fontColor = UIColor.black
-        scoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 60)
+        scoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 90)
         scoreLabelNode.zPosition = 100 // 一番手前に表示する
         scoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         scoreLabelNode.text = "Score:\(score)"
         self.addChild(scoreLabelNode)
         
+        //ベストスコアラベル
         bestScoreLabelNode = SKLabelNode()
         bestScoreLabelNode.fontColor = UIColor.black
-        bestScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 90)
+        bestScoreLabelNode.position = CGPoint(x: 10, y: self.frame.size.height - 120)
         bestScoreLabelNode.zPosition = 100 // 一番手前に表示する
         bestScoreLabelNode.horizontalAlignmentMode = SKLabelHorizontalAlignmentMode.left
         
