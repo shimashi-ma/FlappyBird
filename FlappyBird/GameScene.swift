@@ -92,13 +92,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
         // 風船を生成するアクションを作成
         let createItemAnimation = SKAction.run({
-            // 風船を表示させる位置を決める
+            
+            //風船を乗せるノードを作成
+            let itemBoard = SKNode()
+            itemBoard.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
+            itemBoard.zPosition = -40
+
+            // 風船作成
             let item = SKSpriteNode(texture: itemTexture)
             item.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
-            item.zPosition = -40
             
-            // 物理演算を設定 (半径を指定して円形の物理体を作成）
-            //item.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height / 2)
+            // 物理演算を設定
+            itemBoard.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
+            //item.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height)
 
             //　衝突判定カテゴリーを設定
             item.physicsBody?.categoryBitMask = self.itemCategory
@@ -110,6 +116,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //衝突したときに消える
             //item.physicsBody?
             
+            //
+            itemBoard.addChild(item)
+            
             // スコアアップ用のノード
             let itemScoreNode = SKNode()
             itemScoreNode.position = CGPoint(x: item.size.width, y: item.size.height)
@@ -117,13 +126,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             itemScoreNode.physicsBody?.isDynamic = false
             itemScoreNode.physicsBody?.categoryBitMask = self.itemCategory
             itemScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
-            self.itemNode.addChild(itemScoreNode)
+            itemBoard.addChild(itemScoreNode)
             
-            //　風船用のノードに風船を表示
-            self.itemNode.addChild(item)
+            //
+            itemBoard.run(itemAnimation)
             
-            //移動するアニメーションを表示
-            item.run(itemAnimation)
+            //
+            self.itemNode.addChild(itemBoard)
+            
+ 
         })
         // 10秒待つアクション
         let waitAnimation = SKAction.wait(forDuration: 10)
@@ -369,9 +380,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // SKPhysicsContactDelegateのメソッド。衝突したときに呼ばれる
     func didBegin(_ contact: SKPhysicsContact) {
-        
-        // ゲームオーバーのときは何もしない
-        //壁にあったあとに地面にも必ず衝突するのでそこで2度めの処理を行わないようにするため。
+        // ゲームオーバーのときは何もしない。壁にあったあとに地面にも必ず衝突するのでそこで2度めの処理を行わないようにする。
         if scrollNode.speed <= 0 {
             return
         }
@@ -382,7 +391,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             print("ScoreUp")
             score += 1
             scoreLabelNode.text = "Score:\(score)"
-            
             // ベストスコア更新か確認する
             var bestScore = userDefaults.integer(forKey: "BEST")
             if score > bestScore {
@@ -394,17 +402,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //風船用
-        else if (contact.bodyA.categoryBitMask & itemCategory ) == (contact.bodyB.categoryBitMask & itemCategory){
+        else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory{
             //風船スコアを更新
             print("風船GET")
             itemscore += 1
             itemscoreLabelNode.text = "ItemScore:\(itemscore)"
             
             //風船の割れた音を出す
-            //"burst"
+            let music = SKAction.playSoundFileNamed("burst.mp3", waitForCompletion: false)
+            self.itemNode.run(music)
             
             //風船を消す
-            
+            //let burstItem = SKAction.removeFromParent()
             
         }
         
