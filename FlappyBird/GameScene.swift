@@ -404,7 +404,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // SKPhysicsContactDelegateのメソッド。衝突したときに呼ばれる
     func didBegin(_ contact: SKPhysicsContact) {
         
-        
+        //bodyAとbodyBを入れる用
+        var ABody: SKNode!
+        var BBody: SKNode!
         
         // ゲームオーバーのときは何もしない。壁にあったあとに地面にも必ず衝突するのでそこで2度めの処理を行わないようにする。
         if scrollNode.speed <= 0 {
@@ -439,13 +441,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let music = SKAction.playSoundFileNamed("burst.mp3", waitForCompletion: false)
             self.itemNode.run(music)
             
-            if contact.bodyA.categoryBitMask == itemCategory || contact.bodyB.categoryBitMask == itemCategory {
-                
-                var itemBody: SKNode!
-                itemBody = contact.bodyA.node
+
+            //bodyABのノードを取り出す
+            ABody = contact.bodyA.node
+            BBody = contact.bodyB.node
+            
+            if ABody == bird {
                 print("消える")
-                itemBody.removeFromParent()
-        
+                BBody.removeFromParent()
+            } else {
+                print("消える")
+                ABody.removeFromParent()
             }
             
         }
