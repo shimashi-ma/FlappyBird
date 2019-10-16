@@ -403,6 +403,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // SKPhysicsContactDelegateのメソッド。衝突したときに呼ばれる
     func didBegin(_ contact: SKPhysicsContact) {
+        
+        
+        
         // ゲームオーバーのときは何もしない。壁にあったあとに地面にも必ず衝突するのでそこで2度めの処理を行わないようにする。
         if scrollNode.speed <= 0 {
             return
@@ -425,7 +428,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //風船用
-        else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory{
+        if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory{
+            
             //風船スコアを更新
             print("風船GET")
             itemscore += 1
@@ -434,10 +438,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //風船の割れた音を出す
             let music = SKAction.playSoundFileNamed("burst.mp3", waitForCompletion: false)
             self.itemNode.run(music)
-
-            //風船を消す
-            self.itemNode.removeFromParent()
-            //item.removeFromParent()
+            
+            if contact.bodyA.categoryBitMask == itemCategory || contact.bodyB.categoryBitMask == itemCategory {
+                
+                var itemBody: SKNode!
+                itemBody = contact.bodyA.node
+                print("消える")
+                itemBody.removeFromParent()
+        
+            }
             
         }
         
