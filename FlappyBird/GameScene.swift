@@ -126,26 +126,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             // 風船作成
             let item = SKSpriteNode(texture: itemTexture)
-            item.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
+            item.position = CGPoint(x: 0, y: 0)
             item.zPosition = -40
 
-            
             // 物理演算を設定
-            itemBoard.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height / 2)
-            //itemBoard.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size() )
-            //item.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height)　
+            item.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height / 2)
+            item.physicsBody?.isDynamic = false
 
             //　衝突判定カテゴリーを設定
             item.physicsBody?.categoryBitMask = self.itemCategory
             item.physicsBody?.contactTestBitMask = self.birdCategory //衝突する相手
-            
-            //衝突したときに音がなる
-            //item.physicsBody?
-            
-            //衝突したときに消える
-            //item.physicsBody?
-            //let getItem = SKAction.removeFromParent()
-            //self.itemNode.run(getItem)
             
             //
             itemBoard.addChild(item)
@@ -153,8 +143,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // スコアアップ用のノード
             let itemScoreNode = SKNode()
             itemScoreNode.position = CGPoint(x: item.size.width, y: item.size.height)
-            itemScoreNode.physicsBody = SKPhysicsBody(rectangleOf: item.size)
-            itemScoreNode.physicsBody?.isDynamic = false
+            //itemScoreNode.physicsBody = SKPhysicsBody(rectangleOf: item.size)
+            //itemScoreNode.physicsBody?.isDynamic = false
             itemScoreNode.physicsBody?.categoryBitMask = self.itemCategory
             itemScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
             itemBoard.addChild(itemScoreNode)
