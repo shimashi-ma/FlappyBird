@@ -85,15 +85,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // 鳥が動いていたらBGM音楽を再生
         if bird.speed == 1 {
+            music.autoplayLooped = true
             self.addChild(music)
+            
             
         // 鳥が止まっているときはBGM音楽を止める
         } else if bird.speed == 0 {
-           //stop()
+            GameOvermusic.autoplayLooped = true
+            self.addChild(GameOvermusic)
         
-        // デバックにGemeOverと表示されたらGameOver音楽を再生
-        //} else if print.text == "GameOver" {
-        //    self.addChild(GameOvermusic)
+        // scrollNodeが止まったらGameOver音楽を再生
+        //} else if scrollNode.speed == 0 {
+            //self.addChild(GameOvermusic)
         
         }
         
@@ -120,13 +123,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let createItemAnimation = SKAction.run({
             
             //風船を乗せるノードを作成
-            let itemBoard = SKNode()
-            itemBoard.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
-            itemBoard.zPosition = -40
+            //let itemBoard = SKNode()
+            //itemBoard.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
+            //itemBoard.zPosition = -40
 
             // 風船作成
             let item = SKSpriteNode(texture: itemTexture)
-            item.position = CGPoint(x: 0, y: 0)
+            item.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
             item.zPosition = -40
 
             // 物理演算を設定
@@ -138,22 +141,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             item.physicsBody?.contactTestBitMask = self.birdCategory //衝突する相手
             
             //
-            itemBoard.addChild(item)
+            //itemBoard.addChild(item)
             
             // スコアアップ用のノード
-            let itemScoreNode = SKNode()
-            itemScoreNode.position = CGPoint(x: item.size.width, y: item.size.height)
+            //let itemScoreNode = SKNode()
+            //itemScoreNode.position = CGPoint(x: item.size.width, y: item.size.height)
             //itemScoreNode.physicsBody = SKPhysicsBody(rectangleOf: item.size)
             //itemScoreNode.physicsBody?.isDynamic = false
-            itemScoreNode.physicsBody?.categoryBitMask = self.itemCategory
-            itemScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
-            itemBoard.addChild(itemScoreNode)
+            //itemScoreNode.physicsBody?.categoryBitMask = self.itemCategory
+            //itemScoreNode.physicsBody?.contactTestBitMask = self.birdCategory
+            //itemBoard.addChild(itemScoreNode)
             
             //
-            itemBoard.run(itemAnimation)
+            item.run(itemAnimation)
             
             //
-            self.itemNode.addChild(itemBoard)
+            self.itemNode.addChild(item)
  
         })
         // 10秒待つアクション
@@ -431,11 +434,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //風船の割れた音を出す
             let music = SKAction.playSoundFileNamed("burst.mp3", waitForCompletion: false)
             self.itemNode.run(music)
-            
-            //風船を消す
-            // .node.removeFromParent()
-            
 
+            //風船を消す
+            self.itemNode.removeFromParent()
+            //item.removeFromParent()
+            
         }
         
         //壁か地面と衝突用
