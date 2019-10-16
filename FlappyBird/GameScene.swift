@@ -430,7 +430,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         //風船用
-        if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory{
+        else if (contact.bodyA.categoryBitMask & itemCategory) == itemCategory || (contact.bodyB.categoryBitMask & itemCategory) == itemCategory{
             
             //風船スコアを更新
             print("風船GET")
