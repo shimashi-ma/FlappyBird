@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		991D6FF32356BB52005EC172 /* skyhigh.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 991D6FF22356BB52005EC172 /* skyhigh.mp3 */; };
 		99A063D52354E8E100A9C8A2 /* burst.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 99A063D42354E8E100A9C8A2 /* burst.mp3 */; };
 		99A5745C23509E2700486E4F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A5745B23509E2700486E4F /* AppDelegate.swift */; };
 		99A5745E23509E2700486E4F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A5745D23509E2700486E4F /* ViewController.swift */; };
@@ -14,9 +15,11 @@
 		99A5746323509E2800486E4F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 99A5746223509E2800486E4F /* Assets.xcassets */; };
 		99A5746623509E2800486E4F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 99A5746423509E2800486E4F /* LaunchScreen.storyboard */; };
 		99A5746E2350B38400486E4F /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A5746D2350B38400486E4F /* GameScene.swift */; };
+		99D4EB482356CE5F00168098 /* boyon1.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 99D4EB472356CE5F00168098 /* boyon1.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		991D6FF22356BB52005EC172 /* skyhigh.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = skyhigh.mp3; sourceTree = "<group>"; };
 		99A063D42354E8E100A9C8A2 /* burst.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = burst.mp3; sourceTree = "<group>"; };
 		99A5745823509E2700486E4F /* FlappyBird.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FlappyBird.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		99A5745B23509E2700486E4F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -26,6 +29,7 @@
 		99A5746523509E2800486E4F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		99A5746723509E2800486E4F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99A5746D2350B38400486E4F /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		99D4EB472356CE5F00168098 /* boyon1.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = boyon1.mp3; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +69,8 @@
 				99A5746223509E2800486E4F /* Assets.xcassets */,
 				99A5746423509E2800486E4F /* LaunchScreen.storyboard */,
 				99A5746723509E2800486E4F /* Info.plist */,
+				991D6FF22356BB52005EC172 /* skyhigh.mp3 */,
+				99D4EB472356CE5F00168098 /* boyon1.mp3 */,
 				99A063D42354E8E100A9C8A2 /* burst.mp3 */,
 			);
 			path = FlappyBird;
@@ -128,6 +134,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99D4EB482356CE5F00168098 /* boyon1.mp3 in Resources */,
+				991D6FF32356BB52005EC172 /* skyhigh.mp3 in Resources */,
 				99A5746623509E2800486E4F /* LaunchScreen.storyboard in Resources */,
 				99A5746323509E2800486E4F /* Assets.xcassets in Resources */,
 				99A5746123509E2700486E4F /* Main.storyboard in Resources */,

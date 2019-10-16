@@ -16,6 +16,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var bird:SKSpriteNode! //鳥
     var itemNode:SKNode!   //風船
     
+    
     // 衝突判定カテゴリー
     let birdCategory: UInt32 = 1 << 0       // 0...00001 鳥
     let groundCategory: UInt32 = 1 << 1     // 0...00010　地面
@@ -42,7 +43,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.gravity = CGVector(dx: 0, dy: -4)
         physicsWorld.contactDelegate = self
         
-        //音楽を再生
         
         // 背景色を設定 alphaは透明度
         backgroundColor = UIColor(red: 0.15, green: 0.75, blue: 0.90, alpha: 1)
@@ -70,6 +70,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupitem()
         
         setupScoreLabel()
+        setupMusic()
+        
+    }
+    
+    //BGM用
+    func setupMusic() {
+        
+        //BGM音楽を取得
+        let music = SKAudioNode.init(fileNamed: "skyhigh.mp3")
+        //GameOver音楽を取得
+        let GameOvermusic = SKAudioNode.init(fileNamed: "boyon1.mp3")
+        
+        
+        // 鳥が動いていたらBGM音楽を再生
+        if bird.speed == 1 {
+            self.addChild(music)
+            
+        // 鳥が止まっているときはBGM音楽を止める
+        } else if bird.speed == 0 {
+           //stop()
+        
+        // デバックにGemeOverと表示されたらGameOver音楽を再生
+        //} else if print.text == "GameOver" {
+        //    self.addChild(GameOvermusic)
+        
+        }
         
     }
     
@@ -101,10 +127,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // 風船作成
             let item = SKSpriteNode(texture: itemTexture)
             item.position = CGPoint(x: self.frame.size.width * 0.2, y: 0)
+            item.zPosition = -40
+
             
             // 物理演算を設定
-            itemBoard.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size())
-            //item.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height)
+            itemBoard.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height / 2)
+            //itemBoard.physicsBody = SKPhysicsBody(rectangleOf: itemTexture.size() )
+            //item.physicsBody = SKPhysicsBody(circleOfRadius: item.size.height)　
 
             //　衝突判定カテゴリーを設定
             item.physicsBody?.categoryBitMask = self.itemCategory
@@ -115,6 +144,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             //衝突したときに消える
             //item.physicsBody?
+            //let getItem = SKAction.removeFromParent()
+            //self.itemNode.run(getItem)
             
             //
             itemBoard.addChild(item)
@@ -133,7 +164,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             //
             self.itemNode.addChild(itemBoard)
-            
  
         })
         // 10秒待つアクション
@@ -413,8 +443,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.itemNode.run(music)
             
             //風船を消す
-            //let burstItem = SKAction.removeFromParent()
+            // .node.removeFromParent()
             
+
         }
         
         //壁か地面と衝突用
