@@ -43,7 +43,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.gravity = CGVector(dx: 0, dy: -4)
         physicsWorld.contactDelegate = self
         
-        
         // 背景色を設定 alphaは透明度
         backgroundColor = UIColor(red: 0.15, green: 0.75, blue: 0.90, alpha: 1)
         
@@ -79,25 +78,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         //BGM音楽を取得
         let music = SKAudioNode.init(fileNamed: "skyhigh.mp3")
-        //GameOver音楽を取得
-        let GameOvermusic = SKAudioNode.init(fileNamed: "boyon1.mp3")
-        
         
         // 鳥が動いていたらBGM音楽を再生
         if bird.speed == 1 {
-            music.autoplayLooped = true
+            print("音楽再生")
             self.addChild(music)
-            
-            
+        }
+        
         // 鳥が止まっているときはBGM音楽を止める
-        } else if bird.speed == 0 {
-            GameOvermusic.autoplayLooped = true
-            self.addChild(GameOvermusic)
-        
-        // scrollNodeが止まったらGameOver音楽を再生
-        //} else if scrollNode.speed == 0 {
-            //self.addChild(GameOvermusic)
-        
+        else if bird.speed == 0 {
+            print("音楽止まる")
+            music.run(SKAction.stop())
         }
         
     }
