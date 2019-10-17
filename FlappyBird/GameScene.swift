@@ -74,14 +74,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupScoreLabel()
         
         //BGM流す
-        print("音楽再生")
-        self.addChild(music)
-        
+        setupMusic()
     }
     
     //BGM用
+    func setupMusic(){
+        self.addChild(music)
+    }
+    
+    
     //func setupMusic() {
-        
         //BGM音楽を取得
         //let music = SKAudioNode.init(fileNamed: "skyhigh.mp3")
         
@@ -96,7 +98,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //print("音楽止まる")
             //music.run(SKAction.stop())
         //}
-        
     //}
     
     func setupitem() {
@@ -504,8 +505,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scrollNode.speed = 1
         
         //BGM流す
-        print("音楽再生")
-        self.addChild(music)
+        setupMusic()
         
         
     }
