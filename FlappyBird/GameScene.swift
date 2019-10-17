@@ -36,6 +36,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //ベストスコア保管用
     let userDefaults:UserDefaults = UserDefaults.standard
     
+    //BGM音楽用
+    let music = SKAudioNode.init(fileNamed: "skyhigh.mp3")
+    
     // SKView上にシーンが表示されたときに呼ばれるメソッド
     override func didMove(to view: SKView) {
         
@@ -69,29 +72,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setupitem()
         
         setupScoreLabel()
-        setupMusic()
+        
+        //BGM流す
+        print("音楽再生")
+        self.addChild(music)
         
     }
     
     //BGM用
-    func setupMusic() {
+    //func setupMusic() {
         
         //BGM音楽を取得
-        let music = SKAudioNode.init(fileNamed: "skyhigh.mp3")
+        //let music = SKAudioNode.init(fileNamed: "skyhigh.mp3")
         
         // 鳥が動いていたらBGM音楽を再生
-        if bird.speed == 1 {
-            print("音楽再生")
-            self.addChild(music)
-        }
+        //if bird.speed == 1 {
+            //print("音楽再生")
+            //self.addChild(music)
+        //}
         
         // 鳥が止まっているときはBGM音楽を止める
-        else if bird.speed == 0 {
-            print("音楽止まる")
-            music.run(SKAction.stop())
-        }
+        //else if bird.speed == 0 {
+            //print("音楽止まる")
+            //music.run(SKAction.stop())
+        //}
         
-    }
+    //}
     
     func setupitem() {
         // 風船の画像を読み込む
@@ -385,10 +391,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
            // 鳥に縦方向の力を与える
            bird.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 15))
-            
+
             
         } else if bird.speed == 0 {
             restart()
+    
         }
     }
     
@@ -430,7 +437,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             //風船の割れた音を出す
             let music = SKAction.playSoundFileNamed("burst.mp3", waitForCompletion: false)
-            self.itemNode.run(music)
+            self.run(music)
             
 
             //bodyABのノードを取り出す
@@ -453,6 +460,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             // スクロールを停止させる
             scrollNode.speed = 0
+            
+            //衝突音楽を流す
+            let boyonmusic = SKAction.playSoundFileNamed("boyon1.mp3", waitForCompletion: false)
+            self.run(boyonmusic)
+            
+            //BGMを止める
+            print("音楽止まる")
+            music.run(SKAction.stop())
+            
             
             //鳥が壁に衝突したときに地面まで落下させるため、一時的にcollisionBitMaskをgroundCategoryだけにして壁とは衝突しないようにする
             bird.physicsBody?.collisionBitMask = groundCategory
@@ -486,6 +502,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //スピードを1に戻す
         bird.speed = 1
         scrollNode.speed = 1
+        
+        //BGM流す
+        print("音楽再生")
+        self.addChild(music)
+        
+        
     }
     
     
